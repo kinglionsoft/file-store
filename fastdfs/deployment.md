@@ -21,9 +21,7 @@ sudo apt update
 sudo apt install gcc make cmake unzip build-essential libtool libpcre3 libpcre3-dev zlib1g-dev
 
 # 修改时区
-
-# NTP
-
+sudo timedatectl set-timezone Asia/Shanghai
 ```
 
 ## 安装
