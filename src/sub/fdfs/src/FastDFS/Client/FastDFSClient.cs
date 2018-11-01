@@ -23,8 +23,12 @@ namespace FastDFS.Client
 
         public static async Task<StorageNode> GetStorageNodeAsync(string groupName)
         {
-            var responseBuffer = await QUERY_STORE_WITH_GROUP_ONE.Instance.GetRequest(groupName).GetResponseAsync();
-            var response = new QUERY_STORE_WITH_GROUP_ONE.Response(responseBuffer);
+            var responseBuffer =
+                string.IsNullOrEmpty(groupName)
+                    ? await QUERY_STORE_WITHOUT_GROUP_ONE.Instance.GetRequest().GetResponseAsync()
+                    : await QUERY_STORE_WITH_GROUP_ONE.Instance.GetRequest(groupName).GetResponseAsync();
+
+            var response = new QUERY_STORE_RESPONSE(responseBuffer);
             var point = new IPEndPoint(IPAddress.Parse(response.IPStr), response.Port);
             return new StorageNode
             {
