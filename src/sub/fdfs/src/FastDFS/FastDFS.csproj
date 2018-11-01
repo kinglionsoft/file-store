@@ -10,5 +10,6 @@
     <Authors>caozhiyuan</Authors>
     <PackageProjectUrl>https://github.com/caozhiyuan/FastDFSNetCore</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/caozhiyuan/FastDFSNetCore/blob/master/LICENSE</PackageLicenseUrl>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 </Project>

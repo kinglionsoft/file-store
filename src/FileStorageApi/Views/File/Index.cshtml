@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>File Storage</title>
+    <style type="text/css">
+        body {
+            font-family: "Microsoft Yahei",Calibri;
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+
+        fieldset {
+            margin-top: 30px;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+        }
+
+        dt {
+            font-weight: bold
+        }
+
+        table.hovertable {
+            font-family: verdana,arial,sans-serif;
+            font-size: 11px;
+            color: #333333;
+            border-width: 1px;
+            border-color: #999999;
+            border-collapse: collapse;
+        }
+
+            table.hovertable th {
+                background-color: #c3dde0;
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #a9c6c9;
+                word-wrap: break-word
+            }
+
+            table.hovertable tr {
+                background-color: #d4e3e5;
+            }
+
+            table.hovertable td {
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #a9c6c9;
+            }
+
+        .form-ul {
+            list-style: none;
+        }
+
+            .form-ul > li {
+                position: relative;
+                margin-bottom: 10px;
+            }
+
+                .form-ul > li > input {
+                    display: inline-block;
+                    position: absolute;
+                    left: 100px;
+                }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">云凯文件存储服务</h1>
+        <h2>FastDFS 版本：5.09</h2>
+        <fieldset>
+            <legend><strong>1. 使用文档</strong></legend>
+            <blockquote>
+                <strong><a href="http://git.yun-kai.com/yunkai/index" target="_blank">http://git.yun-kai.com/yunkai/index</a></strong>
+            </blockquote>
+        </fieldset>
+        <fieldset>
+            <legend><strong>2. 服务器状态</strong></legend>
+            <dl id="status">
+                <dt>Provider</dt>
+                <dd id="provider">获取中...</dd>
+                <dt>Groups</dt>
+                <dd>
+                    <div style="width: 84vw;overflow: auto">
+                        <table class="hovertable" id="groups"></table>
+                    </div>
+                </dd>
+            </dl>
+        </fieldset>
+        <fieldset>
+            <legend><strong>3. Form测试</strong></legend>
+            <form action="/file/upload" method="post" enctype="multipart/form-data">
+                <ul class="form-ul">
+                    <li>图片：<input name="file" type="file" accept="image/*" multiple="multiple" /></li>
+                    <li>ext: <input name="ext" value="jpg" maxlength="6" /></li>
+                    <li>width: <input name="width" value="100" type="number" step="1" min="0" /></li>
+                    <li>height: <input name="height" value="100" type="number" step="1" min="0" /></li>
+                    <li>slave: <input name="slave" value="0" type="number" step="1" min="0" /></li>
+                    <li>prefix: <input name="prefix" value="_100x100" /></li>
+                    <li style="height: 30px;"><input type="submit" value="提交" /></li>
+                </ul>
+            </form>
+        </fieldset>
+        <fieldset>
+            <legend><strong>4. Ajax测试</strong></legend>
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                <ul class="form-ul">
+                    <li>图片：<input name="file" type="file" accept="image/*" multiple="multiple" required /></li>
+                    <li>ext: <input name="ext" value="jpg" maxlength="6" /></li>
+                    <li>width: <input name="width" value="100" type="number" step="1" min="0" /></li>
+                    <li>height: <input name="height" value="100" type="number" step="1" min="0" /></li>
+                    <li>slave: <input name="slave" value="0" type="number" step="1" min="0" /></li>
+                    <li>prefix: <input name="prefix" value="_100x100" /></li>
+                    <li style="height: 30px;"><input type="button" value="提交" id="ajaxSubmitBtn" /></li>
+                </ul>
+                <p id="result"></p>
+            </form>
+        </fieldset>
+    </div>
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <script src="//cdn.bootcss.com/jquery.form/4.2.1/jquery.form.min.js"></script>
+    <script>
+
+    function show (data) {
+        if (typeof (data) == "string") data = JSON.parse(data);
+        $('#provider').text(data.Provider);
+        if (!data.Groups) return;
+        var html = ['<tr>'];
+        var keys = [];
+        $.each(data.Groups[0],
+         function (k) {
+             keys.push(k);
+             html.push('<th>' + k + '</th>');
+         });
+        html.push('</tr><tr>');
+        $.each(data.Groups,
+            function (k, group) {
+                for (var i = 0; i < keys.length; i++) {
+                    html.push('<td>' + group[keys[i]] + '</td>');
+                }
+            });
+        html.push('</tr>');
+        $('#groups').html(html.join(''));
+    }
+
+    $(document)
+        .ready(function() {
+            $.get('/storage/status',
+                function(data) {
+                    show(data);
+                })
+                .error(function(err) {
+                    $('#provider').text('获取失败，请检查服务器状态');
+                });
+
+            $('#ajaxSubmitBtn').click(function () {
+                $('#result').text('提交中。。。');
+                $('#uploadForm').ajaxSubmit({
+                    success: function (data) {
+                        $('#result').text(JSON.stringify(data));
+                    },
+                    error: function (error) { $('#result').text(error.responseText);},
+                    url: '/file/upload',
+                    type: 'post',
+                    dataType: 'json' ,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Token', 'yk1234');
+                        return true;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
