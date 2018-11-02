@@ -2,11 +2,11 @@
 
 namespace FastDFS.Client
 {
-    internal class UploadResult: IRequestResult
+    public class UPLOAD_SLAVE_FILE_Result: IRequestResult
     {
         // Fields
-        public string FileName { get; private set; }
-        public string GroupName { get; private set; }
+        public string FileName;
+        public string GroupName;
 
         // Methods
         public void Deserialize(byte[] responseBody)

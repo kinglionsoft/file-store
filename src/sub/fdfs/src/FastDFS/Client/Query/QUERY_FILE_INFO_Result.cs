@@ -2,15 +2,15 @@ using System;
 
 namespace FastDFS.Client
 {
-    public class FDFSFileInfo
+    public class QUERY_FILE_INFO_Result: IRequestResult
 	{
-		public readonly long FileSize;
+		public long FileSize { get; private set; }
 
-		public DateTime CreateTime;
+		public DateTime CreateTime { get; private set; }
 
-		public readonly long Crc32;
+        public long Crc32 { get; private set; }
 
-		public FDFSFileInfo(byte[] responseByte)
+        public void Deserialize(byte[] responseByte)
 		{
 			byte[] numArray = new byte[8];
 			byte[] numArray1 = new byte[8];

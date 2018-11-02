@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using FastDFS.Client;
 
@@ -31,7 +33,7 @@ namespace FastDFS.Test
             return Task.FromResult(new FDFSConfig
             {
                 TackerIp = "",
-                TackerPort = "23000",
+                TackerPort = "22122",
                 StorageGroup = "",
                 StorageServerLink = ""
             });
@@ -48,11 +50,8 @@ namespace FastDFS.Test
         /// <param name="contentBytes">比特数组</param>
         /// <param name="imageType">图片类型</param>
         /// <returns>图片地址</returns>
-        public static async Task<string> FastDFSUploadFile(byte[] contentBytes, string imageType)
+        public static async Task<string> FastDFSUploadFile(Stream stream, string imageType)
         {
-            if (contentBytes == null || contentBytes.Length == 0)
-                throw new ArgumentNullException("contentBytes");
-
             if (string.IsNullOrEmpty(imageType))
                 throw new ArgumentNullException("imageType");
 
@@ -62,7 +61,7 @@ namespace FastDFS.Test
 
             var group = config.StorageGroup;
             var storageNode = await FastDFSClient.GetStorageNodeAsync(group);
-            string paths = await FastDFSClient.UploadFileAsync(storageNode, contentBytes, imageType);
+            string paths = await FastDFSClient.UploadFileAsync(storageNode, stream, imageType, CancellationToken.None);
 
             StringBuilder resultImageUrl = new StringBuilder();
             var storageLink = config.StorageServerLink;

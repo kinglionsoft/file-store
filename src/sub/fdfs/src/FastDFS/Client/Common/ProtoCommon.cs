@@ -409,17 +409,19 @@ namespace FastDFS.Client
         public static string Md5(byte[] source)
         {
             char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-            var md5 = System.Security.Cryptography.MD5.Create();
-            // MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
-            byte[] tmp = md5.ComputeHash(source, 0, source.Length);
-            char[] str = new char[32];
-            int k = 0;
-            for (int i = 0; i < 16; i++)
+            using (var md5 = System.Security.Cryptography.MD5.Create())
             {
-                str[k++] = hexDigits[tmp[i] >> 4 & 0xf];
-                str[k++] = hexDigits[tmp[i] & 0xf];
+                byte[] tmp = md5.ComputeHash(source, 0, source.Length);
+                char[] str = new char[32];
+                int k = 0;
+                for (int i = 0; i < 16; i++)
+                {
+                    str[k++] = hexDigits[tmp[i] >> 4 & 0xf];
+                    str[k++] = hexDigits[tmp[i] & 0xf];
+                }
+
+                return new string(str);
             }
-            return new string(str);
         }
         /// <summary>
         /// get token for file URL

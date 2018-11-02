@@ -2,7 +2,7 @@
 
 namespace FastDFS.Client
 {
-    internal class QUERY_STORE_RESPONSE
+    internal class QUERY_UPDATE_Result: IRequestResult
     {
         public string GroupName;
 
@@ -10,9 +10,7 @@ namespace FastDFS.Client
 
         public int Port;
 
-        public byte StorePathIndex;
-
-        public QUERY_STORE_RESPONSE(byte[] responseByte)
+        public void Deserialize(byte[] responseByte)
         {
             byte[] numArray = new byte[16];
             Array.Copy(responseByte, numArray, 16);
@@ -23,7 +21,6 @@ namespace FastDFS.Client
             byte[] numArray2 = new byte[8];
             Array.Copy(responseByte, 31, numArray2, 0, 8);
             this.Port = (int)Util.BufferToLong(numArray2, 0);
-            this.StorePathIndex = responseByte[(int)responseByte.Length - 1];
         }
     }
 }

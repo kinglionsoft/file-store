@@ -47,6 +47,11 @@ namespace FastDFS.Client
                         {
                             return Connection.SendExAsync(stream, token);
                         }
+
+                        if (x is FDFSHeader header)
+                        {
+                            return Connection.SendExAsync(header.ToByte());
+                        }
                         throw new NotSupportedException();
                     })
                     .ToArray();
@@ -62,62 +67,7 @@ namespace FastDFS.Client
                 Connection?.Close();
             }
         }
-
-        protected virtual async Task OpenAsync()
-        {
-            if (this.ConnectionType == EConnectionType.Tracker)
-            {
-                this.Connection = await ConnectionManager.GetTrackerConnectionAsync();
-            }
-            else
-            {
-                this.Connection = await ConnectionManager.GetStorageConnectionAsync(EndPoint);
-            }
-            await this.Connection.OpenAsync();
-        }
-
-        public virtual async Task<byte[]> GetResponseAsync()
-        {
-            try
-            {
-                await this.OpenAsync();
-
-                byte[] num = this.Header.ToByte();
-                var buffers = new List<ArraySegment<byte>>(2)
-                {
-                    new ArraySegment<byte>(num),
-                    new ArraySegment<byte>(Body)
-                };
-                await Connection.SendExAsync(buffers);
-
-                byte[] numArray0 = new byte[10];
-                if (await Connection.ReceiveExAsync(numArray0) == 0)
-                {
-                    throw new FDFSException("Init Header Exeption : Cann't Read Stream");
-                }
-
-                var length = Util.BufferToLong(numArray0, 0);
-                var command = numArray0[8];
-                var status = numArray0[9];
-
-                var fDFSHeader = new FDFSHeader(length, command, status);
-                if (fDFSHeader.Status != 0)
-                {
-                    throw new FDFSStatusException(fDFSHeader.Status, $"Get Response Error,Error Code:{fDFSHeader.Status}");
-                }
-                byte[] numArray = new byte[fDFSHeader.Length];
-                if (fDFSHeader.Length != (long)0)
-                {
-                    await Connection.ReceiveExAsync(numArray);
-                }
-                return numArray;
-            }
-            finally
-            {
-                this.Connection?.Close();
-            }
-        }
-
+        
         protected virtual async Task<byte[]> ReceiveAsync()
         {
             byte[] numArray0 = new byte[10];

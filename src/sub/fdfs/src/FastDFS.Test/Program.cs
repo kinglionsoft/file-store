@@ -18,10 +18,12 @@ namespace FastDFS.Test
         {
             List<IPEndPoint> pEndPoints = new List<IPEndPoint>()
             {
-                new IPEndPoint(IPAddress.Parse("10.1.62.16"), 22122)
+                new IPEndPoint(IPAddress.Parse("192.168.0.237"), 22122)
             };
             ConnectionManager.Initialize(pEndPoints);
-
+            TestSlave();
+            return;
+            
             while (true)
             {
                 Stopwatch sw = new Stopwatch();
@@ -90,13 +92,14 @@ namespace FastDFS.Test
         /// <param name="storageLink"></param>
         /// <param name="fileBytes"></param>
         /// <returns></returns>
-        private static async Task UploadAsync2(string storageLink, byte[] fileBytes)
+        private static async Task UploadAsync2(string storageLink, Stream stream)
         {
             StorageNode storageNode = await FastDFSClient.GetStorageNodeAsync("group1");
-            var str = await FastDFSClient.UploadFileAsync(storageNode, fileBytes, "jpg");
+            var str = await FastDFSClient.UploadFileAsync(storageNode, stream, "jpg", CancellationToken.None);
             Console.WriteLine(storageLink + str);
+            stream.Dispose();
 
-            await FastDFSClient.RemoveFileAsync("group1", str);
+            await FastDFSClient.RemoveFileAsync("group1", str, CancellationToken.None);
             Console.WriteLine("FastDFSClient.RemoveFile" + str);
         }
 
@@ -114,9 +117,10 @@ namespace FastDFS.Test
             {
                 string str1 = strArrays[i];
                 var numArray = GetFileBytes(str1);
-                var str = await FastDFSClient.UploadFileAsync(storageNode, numArray, "jpg");
+                var str = await FastDFSClient.UploadFileAsync(storageNode, numArray, "jpg", CancellationToken.None);
                 Console.WriteLine(storageLink + str);
-                await FastDFSClient.RemoveFileAsync("group1", str);
+                numArray.Dispose();
+                await FastDFSClient.RemoveFileAsync("group1", str, CancellationToken.None);
                 Console.WriteLine("FastDFSClient.RemoveFile" + str);
             }
         }
@@ -128,22 +132,12 @@ namespace FastDFS.Test
         /// </summary>
         /// <param name="str1"></param>
         /// <returns></returns>
-        private static byte[] GetFileBytes(string str1)
+        private static Stream GetFileBytes(string str1)
         {
             lock (Locker)
             {
-                var fileStream = new FileStream(str1, FileMode.Open);
-                var binaryReader = new BinaryReader(fileStream);
-                byte[] numArray;
-                try
-                {
-                    numArray = binaryReader.ReadBytes((int)fileStream.Length);
-                }
-                finally
-                {
-                    binaryReader.Dispose();
-                }
-                return numArray;
+                var fileStream = new FileStream(str1, FileMode.Open, FileAccess.Read);
+                return fileStream;
             }
         }
 
@@ -168,20 +162,13 @@ namespace FastDFS.Test
             for (int i = 0; i < strArrays.Length; i++)
             {
                 string str1 = strArrays[i];
-                var fileStream = new FileStream(str1, FileMode.Open);
-                var binaryReader = new BinaryReader(fileStream);
-                byte[] numArray;
-                try
-                {
-                    numArray = binaryReader.ReadBytes((int)fileStream.Length);
-                }
-                finally
-                {
-                    binaryReader.Dispose();
-                }
-                var str = FastDFSClient.UploadFileAsync(storageNode, numArray, "jpg").GetAwaiter().GetResult();
+                var fileStream = new FileStream(str1, FileMode.Open, FileAccess.Read);
+             
+                var str = FastDFSClient.UploadFileAsync(storageNode, fileStream, "jpg", CancellationToken.None
+                ).GetAwaiter().GetResult();
+                fileStream.Dispose();
                 Console.WriteLine(StorageLink + str);
-                FastDFSClient.RemoveFileAsync("group1", str).GetAwaiter().GetResult(); ;
+                FastDFSClient.RemoveFileAsync("group1", str, CancellationToken.None).GetAwaiter().GetResult(); ;
                 Console.WriteLine("FastDFSClient.RemoveFile" + str);
             }
         }
@@ -193,8 +180,8 @@ namespace FastDFS.Test
         {
             StorageNode storageNode = await FastDFSClient.GetStorageNodeAsync("group1");
 
-            var str = "M00/0E/82/CgE-EFsTqKmAEHO7AADMG7XS9Fc7491.jpg";
-            FDFSFileInfo fileInfo = await FastDFSClient.GetFileInfoAsync(storageNode, str);
+            var str = "http://locahost/group1/M00/00/00/oYYBAFvcGZ2AGBAbAAAUa4KwmUU269.png";
+            var fileInfo = await FastDFSClient.GetFileInfoAsync(str);
             if (fileInfo == null)
             {
                 Console.WriteLine("Not Exist");
@@ -206,6 +193,16 @@ namespace FastDFS.Test
             Console.WriteLine("Crc32:{0}", fileInfo.Crc32);
 
             Console.WriteLine("Complete");
+        }
+
+        private static void TestSlave()
+        {
+            StorageNode storageNode = FastDFSClient.GetStorageNodeAsync("group1").Result;
+            var str = "http://locahost/group1/M00/00/00/oYYBAFvcGZ2AGBAbAAAUa4KwmUU269.png";
+            var by = GetFileBytes("testimage/1.jpg");
+            var url = FastDFSClient.UploadSlaveFileAsync(storageNode, "M00/00/00/oYYBAFvcGZ2AGBAbAAAUa4KwmUU269.png",
+                "_10x10", by, "jpg", CancellationToken.None).GetAwaiter().GetResult();
+            Console.WriteLine(url);
         }
     }
 }

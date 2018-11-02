@@ -38,13 +38,12 @@ namespace FileStorage.FDFS
 
         public Task DeleteFileAsync(string fileUrl, CancellationToken token)
         {
-            fileUrl = new Uri(fileUrl).LocalPath;
-            var startIndex = fileUrl.StartsWith("/") ? 1 : 0;
-            var fileNameStartIndex = fileUrl.IndexOf('/', startIndex);
-            var groupName = fileUrl.Substring(startIndex, fileNameStartIndex - 1);
-            var fileName = fileUrl.Substring(fileNameStartIndex + 1);
-            token.ThrowIfCancellationRequested();
-            return FastDFSClient.RemoveFileAsync(groupName, fileName);
+            return FastDFSClient.RemoveFileAsync(fileUrl, token);
+        }
+
+        public Task<QUERY_FILE_INFO_Result> GetFileInfo(string fileUrl)
+        {
+            return FastDFSClient.GetFileInfoAsync(fileUrl);
         }
     }
 }

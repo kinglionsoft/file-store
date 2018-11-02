@@ -5,13 +5,13 @@ using System.IO;
 
 namespace FastDFS.Client
 {
-    internal class UploadArgs : IRequestArgs
+    internal class UPLOAD_FILE_Args : IRequestArgs
     {
         private readonly StorageNode _storageNode;
         private readonly Stream _fileStream;
         private readonly string _fileExt;
 
-        public UploadArgs(StorageNode storageNode,
+        public UPLOAD_FILE_Args(StorageNode storageNode,
             Stream fileStream,
             string fileExt)
         {
