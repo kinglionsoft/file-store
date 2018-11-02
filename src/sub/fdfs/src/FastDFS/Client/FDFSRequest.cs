@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FastDFS.Client
 {
-    internal class FDFSRequest
+    internal abstract class FDFSRequest<TArgs, TResult>
+        where TArgs : IRequestArgs
+        where TResult : IRequestResult, new()
     {
         protected byte[] Body { get; set; }
 
@@ -13,21 +18,54 @@ namespace FastDFS.Client
 
         protected FDFSHeader Header { get; set; }
 
-        protected int ConnectionType { get; set; }
+        protected EConnectionType ConnectionType { get; set; } = EConnectionType.Storage;
+
         protected IPEndPoint EndPoint { get; set; }
-
-        protected FDFSRequest()
+        
+        public virtual async Task<TResult> RequestAsync(TArgs args, CancellationToken token)
         {
-        }
+            try
+            {
+                if (this.ConnectionType == EConnectionType.Tracker)
+                {
+                    this.Connection = await ConnectionManager.GetTrackerConnectionAsync();
+                }
+                else
+                {
+                    this.Connection = await ConnectionManager.GetStorageConnectionAsync(EndPoint);
+                }
+                await this.Connection.OpenAsync();
+                var tasks = args
+                    .Select<object, Task>(x =>
+                    {
+                        if (x is byte[] buffer)
+                        {
+                            return Connection.SendExAsync(buffer);
+                        }
 
-        public virtual FDFSRequest GetRequest(params object[] paramList)
-        {
-            throw new NotImplementedException();
+                        if (x is Stream stream)
+                        {
+                            return Connection.SendExAsync(stream, token);
+                        }
+                        throw new NotSupportedException();
+                    })
+                    .ToArray();
+                await Task.WhenAll(tasks);
+
+                var responseBuffer = await ReceiveAsync();
+                var result = new TResult();
+                result.Deserialize(responseBuffer);
+                return result;
+            }
+            finally
+            {
+                Connection?.Close();
+            }
         }
 
         protected virtual async Task OpenAsync()
         {
-            if (this.ConnectionType == 0)
+            if (this.ConnectionType == EConnectionType.Tracker)
             {
                 this.Connection = await ConnectionManager.GetTrackerConnectionAsync();
             }
@@ -40,17 +78,9 @@ namespace FastDFS.Client
 
         public virtual async Task<byte[]> GetResponseAsync()
         {
-            if (this.ConnectionType == 0)
-            {
-                this.Connection = await ConnectionManager.GetTrackerConnectionAsync();
-            }
-            else
-            {
-                this.Connection = await ConnectionManager.GetStorageConnectionAsync(EndPoint);
-            }
             try
             {
-                await this.Connection.OpenAsync();
+                await this.OpenAsync();
 
                 byte[] num = this.Header.ToByte();
                 var buffers = new List<ArraySegment<byte>>(2)
@@ -76,7 +106,7 @@ namespace FastDFS.Client
                     throw new FDFSStatusException(fDFSHeader.Status, $"Get Response Error,Error Code:{fDFSHeader.Status}");
                 }
                 byte[] numArray = new byte[fDFSHeader.Length];
-                if (fDFSHeader.Length != (long) 0)
+                if (fDFSHeader.Length != (long)0)
                 {
                     await Connection.ReceiveExAsync(numArray);
                 }
@@ -112,10 +142,7 @@ namespace FastDFS.Client
             }
             return numArray;
         }
-
-        public byte[] ToByteArray()
-        {
-            throw new NotImplementedException();
-        }
     }
+
+
 }

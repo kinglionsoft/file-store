@@ -3,7 +3,7 @@ using System.Net;
 
 namespace FastDFS.Client
 {
-    internal class UPLOAD_SLAVE_FILE : FDFSRequest
+    internal class UPLOAD_SLAVE_FILE : FDFSRequest<UploadArgs, UploadResult>
     {
         // Fields
         private static UPLOAD_SLAVE_FILE _instance = null;
@@ -13,7 +13,7 @@ namespace FastDFS.Client
         {
         }
 
-        public override FDFSRequest GetRequest(params object[] paramList)
+        public FDFSRequest<UploadArgs, UploadResult> GetRequest(params object[] paramList)
         {
             if (paramList.Length != 6)
             {
@@ -36,7 +36,6 @@ namespace FastDFS.Client
             Array.Copy(buffer6, 0, destinationArray, 0, length);
             UPLOAD_SLAVE_FILE uploadSlaveFile = new UPLOAD_SLAVE_FILE
             {
-                ConnectionType = 1,
                 EndPoint = endPoint
             };
             if (str3.Length > 6)

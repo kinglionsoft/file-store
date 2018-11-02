@@ -3,8 +3,8 @@ using System.Text;
 
 namespace FastDFS.Client
 {
-    internal class QUERY_STORE_WITH_GROUP_ONE : FDFSRequest
-	{
+    internal class QUERY_STORE_WITH_GROUP_ONE : FDFSRequest<UploadArgs, UploadResult>
+    {
 		private static QUERY_STORE_WITH_GROUP_ONE _instance;
 
 		public static QUERY_STORE_WITH_GROUP_ONE Instance
@@ -26,9 +26,10 @@ namespace FastDFS.Client
 
 		private QUERY_STORE_WITH_GROUP_ONE()
 		{
-		}
+		    ConnectionType = EConnectionType.Tracker;
+        }
 
-		public override FDFSRequest GetRequest(params object[] paramList)
+		public FDFSRequest<UploadArgs, UploadResult> GetRequest(params object[] paramList)
 		{
 			if ((int)paramList.Length == 0)
 			{

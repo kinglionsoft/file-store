@@ -48,22 +48,11 @@ namespace FastDFS.Client
             await DELETE_FILE.Instance.GetRequest(point, groupName, fileName).GetResponseAsync();
         }
 
-        public static async Task<string> UploadFileAsync(this StorageNode storageNode, byte[] contentByte, string fileExt)
+        public static async Task<string> UploadFileAsync(this StorageNode storageNode, Stream fileStream, string fileExt, CancellationToken token)
         {
-            var req = new UPLOAD_FILE().GetRequest(
-                storageNode.EndPoint,
-                storageNode.StorePathIndex,
-                contentByte.Length,
-                fileExt,
-                contentByte);
-            var response = new UPLOAD_FILE.Response(await req.GetResponseAsync());
-            return response.FileName;
-        }
-
-        public static async Task<string> UploadFileAsync(this StorageNode storageNode, Stream fileStream , string fileExt, CancellationToken token)
-        {
-            var response = await new UPLOAD_FILE(storageNode)
-                .SendAsync(fileStream, fileExt, token);
+            var response = await new UPLOAD_FILE(storageNode.EndPoint).RequestAsync(
+                    new UploadArgs(storageNode, fileStream, fileExt),
+                    token);
             return response.FileName;
         }
     }

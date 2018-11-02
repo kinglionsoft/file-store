@@ -3,7 +3,7 @@ using System.Net;
 
 namespace FastDFS.Client
 {
-    internal class DELETE_FILE : FDFSRequest
+    internal class DELETE_FILE : FDFSRequest<UploadArgs, UploadResult>
     {
         // Fields
         private static DELETE_FILE _instance = null;
@@ -13,7 +13,7 @@ namespace FastDFS.Client
         {
         }
 
-        public override FDFSRequest GetRequest(params object[] paramList)
+        public FDFSRequest<UploadArgs, UploadResult> GetRequest(params object[] paramList)
         {
             if (paramList.Length != 3)
             {
@@ -24,7 +24,6 @@ namespace FastDFS.Client
             string str2 = (string) paramList[2];
             DELETE_FILE deleteFile = new DELETE_FILE
             {
-                ConnectionType = 1,
                 EndPoint = endPoint
             };
             if (input.Length > 0x10)

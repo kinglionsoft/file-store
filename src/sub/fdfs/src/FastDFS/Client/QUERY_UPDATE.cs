@@ -3,8 +3,8 @@ using System.Text;
 
 namespace FastDFS.Client
 {
-    internal class QUERY_UPDATE : FDFSRequest
-	{
+    internal class QUERY_UPDATE : FDFSRequest<UploadArgs, UploadResult>
+    {
 		private static QUERY_UPDATE _instance;
 
 		public static QUERY_UPDATE Instance
@@ -28,7 +28,7 @@ namespace FastDFS.Client
 		{
 		}
 
-		public override FDFSRequest GetRequest(params object[] paramList)
+		public FDFSRequest<UploadArgs, UploadResult> GetRequest(params object[] paramList)
 		{
 			if ((int)paramList.Length != 2)
 			{

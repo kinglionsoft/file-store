@@ -30,10 +30,8 @@ namespace FileStorage.FDFS
 
         public async Task<string> UploadAsync(UploadFileModel model, CancellationToken token)
         {
-            StorageNode storageNode = await FastDFSClient.GetStorageNodeAsync(model.GroupName);
+            var storageNode = await FastDFSClient.GetStorageNodeAsync(model.GroupName);
             token.ThrowIfCancellationRequested();
-            //var fileId = await FastDFSClient.UploadFileAsync(storageNode,
-            //    await model.GetFileDataAsync(token), model.Extension);
             var fileId = await storageNode.UploadFileAsync(model.FileStream, model.Extension, token);
             return _option.FileUrlPrefix + '/' + storageNode.GroupName + '/' + fileId;
         }

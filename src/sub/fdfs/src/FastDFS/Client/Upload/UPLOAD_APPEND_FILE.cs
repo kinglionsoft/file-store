@@ -3,8 +3,8 @@ using System.Net;
 
 namespace FastDFS.Client
 {
-    internal class UPLOAD_APPEND_FILE : FDFSRequest
-	{
+    internal class UPLOAD_APPEND_FILE : FDFSRequest<UploadArgs, UploadResult>
+    {
 		private static UPLOAD_APPEND_FILE _instance;
 
 		public static UPLOAD_APPEND_FILE Instance
@@ -28,7 +28,7 @@ namespace FastDFS.Client
 		{
 		}
 
-		public override FDFSRequest GetRequest(params object[] paramList)
+		public FDFSRequest<UploadArgs, UploadResult> GetRequest(params object[] paramList)
 		{
 			if ((int)paramList.Length != 5)
 			{
@@ -49,7 +49,6 @@ namespace FastDFS.Client
 			Array.Copy(num2, 0, numArray1, 0, length);
 			UPLOAD_APPEND_FILE uploadAppendFile = new UPLOAD_APPEND_FILE()
 			{
-			    ConnectionType = 1,
 			    EndPoint = pEndPoint
             };
 			if (str.Length > 6)
