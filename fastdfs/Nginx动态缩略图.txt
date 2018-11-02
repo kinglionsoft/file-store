@@ -1,0 +1,67 @@
+CentOS下安装GraphicsMagick
+yum -y install GraphicsMagick GraphicsMagick-devel
+
+
+安装openresty需要的开发库
+yum install readline-devel pcre-devel openssl-devel
+
+下载fastdfs-nginx-module模块源码  编译安装
+安装openresty
+#./configure --preifx=/data/openresty --add-module=/data/fastdfs-nginx-module/src
+#gmake &&gmake install
+
+
+配置nginx.conf
+
+	location ~* _([0-9]+)x([0-9]+)\.(gif|jpg|png|jpeg)$ {
+		alias /data/fastdfs/images/data;
+   		set $image_root "/data/fastdfs/images/data";
+   		if ( $uri ~ "/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/(.*)" ) {
+     			set $image_dir "$image_root/$3/$4";
+     			set $image_name "$5";
+    	 		set $file "$image_dir/$image_name";
+    		}
+    		if ( !-f $file ) {
+    			# 关闭lua代码缓存，方便调试lua脚本
+    			#lua_code_cache off;
+    			rewrite_by_lua_file "/data/openresty/lualib/convert.lua";
+    		}
+		ngx_fastdfs_module;
+    	}
+	location /group1/M00 {
+		root /data/fastdfs/images/data;
+		ngx_fastdfs_module;
+	}
+
+
+convert.lua文件
+
+local area = nil
+local originalUri = ngx.var.uri;
+local originalFile = ngx.var.file;
+local index = string.find(ngx.var.uri, "([0-9]+)x([0-9]+)");
+if index then
+    originalUri = string.sub(ngx.var.uri, 0, index-2);
+    area = string.sub(ngx.var.uri, index);
+    index1 = string.find(area, "([.])");
+    area = string.sub(area, 0, index1-1);
+    index1 = string.find(ngx.var.uri, "([.])");
+    ext = string.sub(ngx.var.uri,index1);
+    local index = string.find(originalFile, "([0-9]+)x([0-9]+)");
+    originalFile = string.sub(originalFile, 0, index-2)..ext;
+end
+local image_sizes = {"80x80","800x800","600x600","450x450","200x200","120x120"};
+function table.contains(table, element)
+    for _, value in pairs(table) do
+        if value == element then
+            return true
+        end
+    end
+    return false
+end
+
+
+if table.contains(image_sizes, area) then
+    local command = "gm convert -resize "..area.." "..originalFile.." "..ngx.var.file;
+    os.execute(command);
+end;

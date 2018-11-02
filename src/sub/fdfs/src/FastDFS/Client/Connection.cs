@@ -1,34 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FastDFS.Client
 {
     internal class Connection
     {
-        private Pool _pool;
-
         private DateTime _lastUseTime;
 
-        private bool _inUse = false;
+        public bool InUse { get; set; } = false;
 
-        public bool InUse
-        {
-            get => this._inUse;
-            set => this._inUse = value;
-        }
-
-        public Pool Pool
-        {
-            get => this._pool;
-            set => this._pool = value;
-        }
+        public Pool Pool { get; set; }
 
         private readonly IPEndPoint _endPoint;
 
-        private Socket Socket { get; set; }
+        private Socket _socket { get; set; }
 
         public Connection(IPEndPoint endPoint)
         {
@@ -37,12 +27,12 @@ namespace FastDFS.Client
 
         internal void Close()
         {
-            this._pool.CloseConnection(this);
+            this.Pool.CloseConnection(this);
         }
 
         internal async Task OpenAsync()
         {
-            if (this._inUse)
+            if (this.InUse)
             {
                 throw new FDFSException("the connection is already in user");
             }
@@ -52,13 +42,13 @@ namespace FastDFS.Client
                 await CloseSocketAsync();
             }
 
-            this._inUse = true;
+            this.InUse = true;
             this._lastUseTime = DateTime.Now;
 
-            if (Socket == null || !Socket.Connected)
+            if (_socket == null || !_socket.Connected)
             {
-                Socket = NewSocket();
-                await Socket.ConnectExAsync(_endPoint);
+                _socket = NewSocket();
+                await _socket.ConnectExAsync(_endPoint);
             }
         }
 
@@ -79,9 +69,35 @@ namespace FastDFS.Client
         {
             try
             {
-                return await Socket.SendExAsync(buffers);
+                return await _socket.SendExAsync(buffers);
             }
-            catch (Exception)
+            catch
+            {
+                await CloseSocketAsync();
+                throw;
+            }
+        }
+
+        internal async Task<int> SendExAsync(byte[] buffers)
+        {
+            try
+            {
+                return await _socket.SendExAsync(buffers);
+            }
+            catch
+            {
+                await CloseSocketAsync();
+                throw;
+            }
+        }
+
+        internal async Task<long> SendExAsync(Stream stream, CancellationToken token)
+        {
+            try
+            {
+                return await _socket.SendExAsync(stream, token);
+            }
+            catch 
             {
                 await CloseSocketAsync();
                 throw;
@@ -90,7 +106,7 @@ namespace FastDFS.Client
 
         internal async Task<int> ReceiveExAsync(byte[] buffer)
         {
-            var sent = await Socket.ReceiveExAsync(buffer);
+            var sent = await _socket.ReceiveExAsync(buffer);
             if (sent == 0)
             {
                 await CloseSocketAsync();
@@ -103,15 +119,15 @@ namespace FastDFS.Client
             try
             {
                 byte[] buffer0 = new FDFSHeader(0L, 0x52, 0).ToByte();
-                await Socket.SendExAsync(buffer0);
-                Socket.Close();
-                Socket.Dispose();
+                await _socket.SendExAsync(buffer0);
+                _socket.Close();
+                _socket.Dispose();
             }
             catch
             {
                 // ignored
             }
-            Socket = null;
+            _socket = null;
         }
     }
 }

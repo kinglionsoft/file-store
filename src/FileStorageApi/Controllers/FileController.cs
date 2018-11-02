@@ -39,29 +39,24 @@ namespace FileStorageApi.Controllers
                 return BadRequest(ApiResult.Failed($"超过单次上传数量限制：{_uploadOption.MaxUpload}"));
             }
 
+            if (string.IsNullOrWhiteSpace(input.Extension)
+                && Request.Form.Files.Any(x => string.IsNullOrWhiteSpace(x.FileName)
+                                               || string.IsNullOrWhiteSpace(Path.GetExtension(x.FileName))))
+            {
+                return BadRequest(ApiResult.Failed("请手动设置文件扩展名"));
+            }
+
             var tasks = Request.Form.Files
                 .Select(file =>
                 {
-                    if (string.IsNullOrWhiteSpace(input.Extension))
+                    string ext = null;
+                    if (!string.IsNullOrWhiteSpace(file.FileName))
                     {
-                        if (string.IsNullOrWhiteSpace(file.FileName))
-                        {
-                            throw new UserFriendlyException("请手动设置文件扩展名");
-                        }
-
-                        var ext = Path.GetExtension(file.FileName);
-                        if (string.IsNullOrWhiteSpace(ext))
-                        {
-                            throw new UserFriendlyException("请手动设置文件扩展名");
-                        }
-
-                        input.Extension = ext;
+                        ext = Path.GetExtension(file.FileName);
                     }
-
-                    var model = new UploadFileModel(Request.Form.Files[0].OpenReadStream(),
-                        input.Extension,
+                    var model = new UploadFileModel(file.OpenReadStream(),
+                        ext ?? input.Extension,
                         input.Group);
-
                     return _fileStorageService.UploadAsync(model);
                 })
                 .ToArray();

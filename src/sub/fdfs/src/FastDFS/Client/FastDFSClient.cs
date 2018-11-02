@@ -1,11 +1,13 @@
+using System.IO;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FastDFS.Client
 {
-    public class FastDFSClient
+    public static class FastDFSClient
     {
-        public static async Task<FDFSFileInfo> GetFileInfoAsync(StorageNode storageNode, string fileName)
+        public static async Task<FDFSFileInfo> GetFileInfoAsync(this StorageNode storageNode, string fileName)
         {
             try
             {
@@ -46,15 +48,22 @@ namespace FastDFS.Client
             await DELETE_FILE.Instance.GetRequest(point, groupName, fileName).GetResponseAsync();
         }
 
-        public static async Task<string> UploadFileAsync(StorageNode storageNode, byte[] contentByte, string fileExt)
+        public static async Task<string> UploadFileAsync(this StorageNode storageNode, byte[] contentByte, string fileExt)
         {
-            var req = UPLOAD_FILE.Instance.GetRequest(
+            var req = new UPLOAD_FILE().GetRequest(
                 storageNode.EndPoint,
                 storageNode.StorePathIndex,
                 contentByte.Length,
                 fileExt,
                 contentByte);
             var response = new UPLOAD_FILE.Response(await req.GetResponseAsync());
+            return response.FileName;
+        }
+
+        public static async Task<string> UploadFileAsync(this StorageNode storageNode, Stream fileStream , string fileExt, CancellationToken token)
+        {
+            var response = await new UPLOAD_FILE(storageNode)
+                .SendAsync(fileStream, fileExt, token);
             return response.FileName;
         }
     }

@@ -7,18 +7,22 @@ namespace FileStorage.Core
 {
     public class UploadFileModel
     {
-        private readonly Stream _fileStream;
+        public readonly Stream FileStream;
         public readonly string Extension;
         public readonly string GroupName;
 
         public UploadFileModel(Stream fileStream, string extension, string groupName)
         {
-            _fileStream = fileStream;
             Extension = extension.TrimStart('.');
+            if (Extension.Length > 6)
+            {
+                throw new Exception("file ext is too long");
+            }
+            FileStream = fileStream;
             GroupName = groupName;
         }
 
         public Task<byte[]> GetFileDataAsync(CancellationToken token)
-            => _fileStream.ReadToEndAsync(token);
+            => FileStream.ReadToEndAsync(token);
     }
 }

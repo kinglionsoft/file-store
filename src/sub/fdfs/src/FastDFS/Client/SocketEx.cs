@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FastDFS.Client
@@ -98,6 +100,15 @@ namespace FastDFS.Client
                 }
             }, tcs);
             return tcs.Task;
+        }
+
+        public static async Task<long> SendExAsync(this Socket socket, Stream stream, CancellationToken token)
+        {
+            using (var netStream = new NetworkStream(socket, false))
+            {
+                await stream.CopyToAsync(netStream, 81920, token);
+                return stream.Length;
+            }
         }
     }
 }
