@@ -70,10 +70,10 @@ namespace FileStorageApi.Controllers
         {
             if (string.IsNullOrWhiteSpace(url))
             {
-                return BadRequest();
+                return BadRequest(ApiResult.Failed("Url不能为空"));
             }
             await _fileStorageService.DeleteAsync(url);
-            return Ok();
+            return Ok(ApiResult.Succeed());
         }
 
         public IActionResult Status()

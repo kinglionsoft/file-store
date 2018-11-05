@@ -100,11 +100,7 @@
             <form action="/file/upload" method="post" enctype="multipart/form-data">
                 <ul class="form-ul">
                     <li>图片：<input name="file" type="file" accept="image/*" multiple="multiple" /></li>
-                    <li>ext: <input name="ext" value="jpg" maxlength="6" /></li>
-                    <li>width: <input name="width" value="100" type="number" step="1" min="0" /></li>
-                    <li>height: <input name="height" value="100" type="number" step="1" min="0" /></li>
-                    <li>slave: <input name="slave" value="0" type="number" step="1" min="0" /></li>
-                    <li>prefix: <input name="prefix" value="_100x100" /></li>
+                    <li>扩展名: <input name="Extension" value="jpg" maxlength="6" /></li>
                     <li style="height: 30px;"><input type="submit" value="提交" /></li>
                 </ul>
             </form>
@@ -114,11 +110,7 @@
             <form method="post" enctype="multipart/form-data" id="uploadForm">
                 <ul class="form-ul">
                     <li>图片：<input name="file" type="file" accept="image/*" multiple="multiple" required /></li>
-                    <li>ext: <input name="ext" value="jpg" maxlength="6" /></li>
-                    <li>width: <input name="width" value="100" type="number" step="1" min="0" /></li>
-                    <li>height: <input name="height" value="100" type="number" step="1" min="0" /></li>
-                    <li>slave: <input name="slave" value="0" type="number" step="1" min="0" /></li>
-                    <li>prefix: <input name="prefix" value="_100x100" /></li>
+                    <li>扩展名: <input name="Extension" value="jpg" maxlength="6" /></li>
                     <li style="height: 30px;"><input type="button" value="提交" id="ajaxSubmitBtn" /></li>
                 </ul>
                 <p id="result"></p>
@@ -153,7 +145,7 @@
 
     $(document)
         .ready(function() {
-            $.get('/storage/status',
+            $.get('/file/status',
                 function(data) {
                     show(data);
                 })
@@ -172,7 +164,6 @@
                     type: 'post',
                     dataType: 'json' ,
                     beforeSend: function (xhr) {
-                        xhr.setRequestHeader('Token', 'yk1234');
                         return true;
                     }
                 });
