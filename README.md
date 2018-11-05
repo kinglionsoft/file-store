@@ -109,20 +109,22 @@ Service Fabric + FastDFS + AspNetCore 搭建分布式文件系统和存储服务
 2. 若使用了DI。以.Net Core DI为例：
 
 ``` C#
-//在Startup.ConfigureServices方法中：
+// 在Startup.ConfigureServices方法中：
 services.AddFileStorage(option =>
 {
     FileServer = "文件服务器地址",
 });
 
-//使用时，注入IStorageManager
+// 使用时，注入IFileStorage
 public class HomeController{
     private readonly IFileStorage _storageManager;
-    public HomeController(IFileStorage storageManager){
+    public HomeController(IFileStorage storageManager)
+    {
         this._storageManager = storageManager;
     }
 
-    public async Task Upload(){
+    public async Task Upload()
+    {
        await this.IFileStorage.UploadAsync("<local file>", "jpg");
     }
 }
