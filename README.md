@@ -112,7 +112,7 @@ Service Fabric + FastDFS + AspNetCore 搭建分布式文件系统和存储服务
 // 在Startup.ConfigureServices方法中：
 services.AddFileStorage(option =>
 {
-    FileServer = "文件服务器地址",
+    FileServer = "文件服务器地址", // 测试环境为 192.168.0.237:8080
 });
 
 // 使用时，注入IFileStorage

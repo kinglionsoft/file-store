@@ -34,7 +34,7 @@ namespace FastDFS.Client
         {
             if (this.InUse)
             {
-                throw new FDFSException("the connection is already in user");
+                throw new FDFSException("This connection is already in use");
             }
 
             if (_lastUseTime != default(DateTime) && IdleTotalSeconds > FDFSConfig.ConnectionLifeTime)

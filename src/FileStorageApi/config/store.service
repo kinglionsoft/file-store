@@ -1,0 +1,17 @@
+[Unit]
+Description=File Storage Service
+
+[Service]
+WorkingDirectory=/opt/file-store
+ExecStart=/usr/bin/dotnet /opt/file-store/FileStorageApi.dll
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=file-store
+User=root
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+Environment=ASPNETCORE_URLS=http://*:8080
+
+[Install]
+WantedBy=multi-user.target

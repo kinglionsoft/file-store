@@ -15,10 +15,8 @@ namespace FileStorageApi
         /// </summary>
         private static void Main()
         {
-#if DEBUG
             DebugHost();
             return;
-#endif
 
             try
             {
