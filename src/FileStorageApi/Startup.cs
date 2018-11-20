@@ -25,6 +25,7 @@ namespace FileStorageApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.Configure<UploadOption>(Configuration.GetSection("Upload"));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddStorage(Configuration.GetSection("FastDFS"));
@@ -37,6 +38,9 @@ namespace FileStorageApi
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(builder =>
+                builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
             app.UseMvc(builder => { builder.MapRoute("default", "{controller}/{action=Index}"); });
         }
