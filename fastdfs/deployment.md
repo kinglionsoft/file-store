@@ -1,7 +1,7 @@
 # FastDfs 部署
 
 ## 环境
-
+fs/fs1234
 ### Tracker
 * Ubuntu 18.04.1 LTS
 * 192.168.0.237

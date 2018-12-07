@@ -23,7 +23,18 @@ namespace FileStorage.FDFS
             {
                 ConnectionManager.Initialize(_option
                     .TrackerIps
-                    .Select(trackerIp => new IPEndPoint(IPAddress.Parse(trackerIp), _option.TrackerPort))
+                    .Select(trackerIp =>
+                    {
+                        if (!IPAddress.TryParse(trackerIp, out var address))
+                        {
+                            address = Dns.GetHostAddresses(trackerIp).FirstOrDefault();
+                            if (address == null)
+                            {
+                                throw new ArgumentException($"Can't get IP from {trackerIp}");
+                            }
+                        }
+                        return new IPEndPoint(address, _option.TrackerPort);
+                    })
                     .ToList());
             }
         }

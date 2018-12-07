@@ -44,6 +44,15 @@ namespace FileStorageApi
         {
             WebHost.CreateDefaultBuilder()
                 .UseStartup<Startup>()
+                .UseKestrel((context, options) =>
+                {
+                    var maxBodySize = context.Configuration["Upload:MaxRequestSize"];
+                    if (!string.IsNullOrWhiteSpace(maxBodySize)
+                        && int.TryParse(maxBodySize, out var mrbs))
+                    {
+                        options.Limits.MaxRequestBodySize = mrbs * 1024L * 1024L;
+                    }
+                })
                 .Build()
                 .Run();
         }

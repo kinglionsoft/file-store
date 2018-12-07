@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-store
+  labels:
+    app: file-store
+spec:
+  ports:
+    # the port that this service should serve on
+  - port: 8082
+    targetPort: 80
+    nodePort: 30082
+  selector:
+    app: file-store
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: file-store
+  name: file-store
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: file-store
+      name: file-store
+    spec:
+      containers:
+      - name: file-store
+        imagePullPolicy: IfNotPresent
+        image: registry.yx.com/ctc/file-store
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: fastdfs
+spec:
+  hosts:
+  - 192.168.0.237
+  addresses:
+  - 192.168.0.237
+  ports:
+  - number: 22122
+    name: tcp
+    protocol: TCP
+  location: MESH_EXTERNAL
