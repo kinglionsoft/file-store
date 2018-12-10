@@ -34,18 +34,3 @@ spec:
         image: registry.yx.com/ctc/file-store
       nodeSelector:
         beta.kubernetes.io/os: linux
----
-apiVersion: networking.istio.io/v1alpha3
-kind: ServiceEntry
-metadata:
-  name: fastdfs
-spec:
-  hosts:
-  - 192.168.0.237
-  addresses:
-  - 192.168.0.237
-  ports:
-  - number: 22122
-    name: tcp
-    protocol: TCP
-  location: MESH_EXTERNAL

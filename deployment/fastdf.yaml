@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: fastdfs
+spec:
+  hosts:
+  - 192.168.0.237
+  addresses:
+  - 192.168.0.0/24
+  ports:
+  - number: 22122
+    name: tracker-tcp
+    protocol: TCP
+  - number: 23000
+    name: storage-tcp
+    protocol: TCP
+  location: MESH_EXTERNAL
