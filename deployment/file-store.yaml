@@ -32,5 +32,13 @@ spec:
       - name: file-store
         imagePullPolicy: IfNotPresent
         image: registry.yx.com/ctc/file-store
+        volumeMounts:
+        - name: config
+          mountPath: /app/configMap
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: file-store-config
       nodeSelector:
         beta.kubernetes.io/os: linux

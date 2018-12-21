@@ -32,8 +32,7 @@ sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 # libfastcommon
 git clone --depth=1 https://github.com/happyfish100/libfastcommon.git
 cd libfastcommon
-sudo ./make.sh
-suod ./make.sh install
+sudo ./make.sh && sudo ./make.sh install
 
 # fastdfs
 git clone --depth=1 https://github.com/happyfish100/fastdfs.git fastdfs-5.12
@@ -124,19 +123,18 @@ sudo /etc/init.d/fdfs_storaged  stop # 停止
 
 # 下载nginx 和 fastdfs-nginx-module
 cd ~/
-wget http://nginx.org/download/nginx-1.14.0.tar.gz
+wget http://nginx.org/download/nginx-1.14.2.tar.gz
 git clone --depth=1 https://github.com/happyfish100/fastdfs-nginx-module.git
 
 # 安装nginx
-tar -zxvf nginx-1.14.0.tar.gz
-cd nginx-1.14.0
-./configure --prefix=/opt/nginx --sbin-path=/usr/bin/nginx --add-module=/home/fs/fastdfs-nginx-module/src
+tar -zxvf nginx-1.14.2.tar.gz
+cd nginx-1.14.2
+./configure --prefix=/opt/nginx --sbin-path=/usr/bin/nginx --add-module=/opt/fastdfs-nginx-module/src
 make && make install
 
 # 配置
 cp /home/fs/fastdfs-nginx-module/src/mod_fastdfs.conf /etc/fdfs/
-vim /etc/fdfs/mod_fastdfs.conf
-
+sudo tee /etc/fdfs/mod_fastdfs.conf << EOF
 connect_timeout=10
 base_path=/tmp
 tracker_server=192.168.0.237:22122
@@ -150,6 +148,7 @@ group_name=group1
 storage_server_port=23000
 store_path_count=1
 store_path0=/fastdfs/storage
+EOF
 
 # 复制FastDFS源文件目录中HTTP相关的配置文件到/etc/fdfs目录
 cd /home/fs/fastdfs-5.12/conf
@@ -186,7 +185,7 @@ nginx
 
 # 开启启动
 
-cat > /opt/nginx/nginx.service << EOF
+tee /opt/nginx/nginx.service << EOF
 [Unit]
 Description=The NGINX HTTP and reverse proxy server
 After=syslog.target network.target remote-fs.target nss-lookup.target
@@ -215,12 +214,12 @@ systemctl enable nginx.service
 wget -O ngx_cache_purge.zip https://github.com/FRiCKLE/ngx_cache_purge/archive/2.3.zip 
 upzip ngx_cache_purge.zip
 
-cd /home/fs/nginx-1.14.0
-./configure --prefix=/opt/nginx --sbin-path=/usr/bin/nginx --add-module=/home/fs/ngx_cache_purge-2.3
+cd /home/fs/nginx-1.14.0 
+./configure --prefix=/opt/nginx --sbin-path=/usr/bin/nginx --with-http_v2_module --with-http_ssl_module --with-openssl=/opt/local/openssl --add-module=/opt/ngx_cache_purge-2.3
 make && make install
 
 # 配置nginx
-cat > /opt/nginx/conf/nginx.conf << EOF
+tee /opt/nginx/conf/nginx.conf << EOF
 #user  nobody;
 worker_processes  1;
 events {

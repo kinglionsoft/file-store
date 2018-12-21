@@ -5,6 +5,8 @@ using System.Threading;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.ServiceFabric.Services.Runtime;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace FileStorageApi
 {
@@ -42,19 +44,43 @@ namespace FileStorageApi
 
         private static void DebugHost()
         {
-            WebHost.CreateDefaultBuilder()
-                .UseStartup<Startup>()
-                .UseKestrel((context, options) =>
-                {
-                    var maxBodySize = context.Configuration["Upload:MaxRequestSize"];
-                    if (!string.IsNullOrWhiteSpace(maxBodySize)
-                        && int.TryParse(maxBodySize, out var mrbs))
+            new WebHostBuilder()
+                    .UseKestrel((hostingContext, options) =>
                     {
-                        options.Limits.MaxRequestBodySize = mrbs * 1024L * 1024L;
-                    }
-                })
-                .Build()
-                .Run();
+                        var maxBodySize = hostingContext.Configuration["Upload:MaxRequestSize"];
+                        if (!string.IsNullOrWhiteSpace(maxBodySize)
+                            && int.TryParse(maxBodySize, out var mrbs))
+                        {
+                            options.Limits.MaxRequestBodySize = mrbs * 1024L * 1024L;
+                        }
+                    })
+                    .UseContentRoot(Directory.GetCurrentDirectory())
+                    .ConfigureAppConfiguration((hostingContext, config) =>
+                    {
+                        config
+                            .SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
+                            .AddJsonFile(Path.Combine("config", "appsettings.json"), false, true)
+                            .AddJsonFile(Path.Combine("config", $"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json"), true, true)
+                            .AddJsonFile(Path.Combine("configMap", $"appsettings.k8s.json"), true, true)
+                            .AddEnvironmentVariables();
+                    })
+                    .ConfigureLogging((hostingContext, logging) =>
+                    {
+                        //add logging
+                        logging.AddConsole();
+                        if (hostingContext.HostingEnvironment.IsDevelopment())
+                        {
+                            logging.SetMinimumLevel(LogLevel.Debug);
+                        }
+                        else
+                        {
+                            logging.SetMinimumLevel(LogLevel.Error);
+                        }
+                    })
+                    .UseIISIntegration()
+                    .UseStartup<Startup>()
+                    .Build()
+                    .Run();
         }
     }
 }
