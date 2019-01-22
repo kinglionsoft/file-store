@@ -2,19 +2,19 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <Version>1.0.0</Version>
+    <Version>1.0.1.0</Version>
     <LangVersion>7.1</LangVersion>
     <PackageProjectUrl>https://github.com/kinglionsoft/file-store</PackageProjectUrl>
     <Authors>King9Soft</Authors>
-    <Description>文件存储SDK</Description>
+    <Description>文件存储SDK，引用Microsoft.Extensions.Configuration的2.1.1版本，可在2.1框架下使用</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
   </ItemGroup>
 </Project>
