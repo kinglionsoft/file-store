@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <Version>1.0.1.0</Version>
+    <Version>1.0.2.0</Version>
     <LangVersion>7.1</LangVersion>
     <PackageProjectUrl>https://github.com/kinglionsoft/file-store</PackageProjectUrl>
     <Authors>King9Soft</Authors>
