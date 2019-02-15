@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace FileStorageApi.Controllers.Dto
+﻿namespace FileStorageApi.Controllers.Dto
 {
     public sealed class FileUploadInput
     {

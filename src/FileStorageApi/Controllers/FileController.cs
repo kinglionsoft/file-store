@@ -83,5 +83,24 @@ namespace FileStorageApi.Controllers
         {
             return Ok();
         }
+
+
+        /// <summary>
+        /// 批量打包下载
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Download([FromBody] FilesDownloadModel input)
+        {
+            if (string.IsNullOrEmpty(input.FileName) || !(input.Files?.Count > 0))
+            {
+                return BadRequest(ApiResult.Failed("参数无效"));
+            }
+
+            var zipFile = await _fileStorageService.DownloadAsync(input.Files);
+
+            return File(System.IO.File.OpenRead(zipFile),"application/zip", input.FileName);
+        }
     }
 }

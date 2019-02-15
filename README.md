@@ -10,6 +10,8 @@ Service Fabric + FastDFS + AspNetCore 搭建分布式文件系统和存储服务
 
 ## 使用
 
+* API地址：https://store.yitu666.com
+
 ### 上传
 * 接口地址：POST {服务器地址}/file/upload
 * Content-Type: multipart/form-data
@@ -38,6 +40,22 @@ Service Fabric + FastDFS + AspNetCore 搭建分布式文件系统和存储服务
 	"error":""
 }
 ```
+
+### 打包下载
+* 接口地址：POST {服务器地址}/file/download
+* Content-Type: application/json
+* 参数说明:
+
+``` js
+{
+	"FileName": "test.zip",
+	"Files": {
+		"1.png": "http://store.yitu666.com:8880/group1/M00/00/68/oYYBAFxmcp6AQsyIAAAUa4KwmUU490.png",
+		"img/2.png": "http://store.yitu666.com:8880/group1/M00/00/68/oYYBAFxmcp6AQsyIAAAUa4KwmUU490.png"
+	}
+}
+```
+* 返回值: test.zip 文件流
 
 ## 示例
 

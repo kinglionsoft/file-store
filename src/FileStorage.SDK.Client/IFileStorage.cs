@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using FileStorage.Core;
 
 namespace FileStorage.SDK.Client
 {
@@ -25,5 +26,10 @@ namespace FileStorage.SDK.Client
         /// <param name="fileUrl">文件地址</param>
         Task<ApiResult> DeleteAsync(string fileUrl,
             CancellationToken token = default);
+
+        /// <summary>
+        /// 批量打包下载
+        /// </summary>
+        Task<Stream> DownloadAsync(FilesDownloadModel input, CancellationToken token = default);
     }
 }

@@ -17,6 +17,8 @@ namespace FileStorage.Application
             services.Configure<FastDfsOption>(configuration);
             services.AddSingleton<IStorageProvider, FastDfsStorageProvider>();
             services.AddSingleton<IFileStorageService, FileStorageService>();
+            
+            services.AddHttpClient<IFastDfsHttpClient, FastDfsHttpClient>();
         }
     }
 }

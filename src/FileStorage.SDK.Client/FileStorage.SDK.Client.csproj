@@ -17,4 +17,8 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FileStorage.Core\FileStorage.Core.csproj" />
+  </ItemGroup>
 </Project>

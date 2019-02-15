@@ -15,5 +15,7 @@
         internal const string UploadUrl = "/file/upload";
 
         internal const string DeleteUrl = "/file/delete";
+
+        internal const string DownloadUrl = "/file/download";
     }
 }

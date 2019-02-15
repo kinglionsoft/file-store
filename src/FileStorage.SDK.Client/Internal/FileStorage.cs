@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FileStorage.Core;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -128,6 +130,26 @@ namespace FileStorage.SDK.Client
             {
                 response?.Dispose();
             }
+        }
+
+        public async Task<Stream> DownloadAsync(FilesDownloadModel input, CancellationToken token = default)
+        {
+            if (string.IsNullOrEmpty(input.FileName) || !(input.Files?.Count > 0))
+            {
+                throw new ArgumentException("参数无效");
+            }
+
+            var response = await _httpClient.PostAsync(FileStorageOption.DownloadUrl,
+                new StringContent(JsonConvert.SerializeObject(input),
+                    Encoding.UTF8, 
+                    "application/json"),
+                token);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStreamAsync();
+            }
+            throw new HttpRequestException($"下载文件失败，{response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
         }
     }
 }

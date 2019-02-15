@@ -1,6 +1,7 @@
-﻿using System;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using FileStorage.Core;
 
 namespace FileStorage.SDK.Client
 {
@@ -22,6 +23,20 @@ namespace FileStorage.SDK.Client
             catch
             {
                 return false;
+            }
+        }
+
+        public static async Task DownloadToFileAsync(this IFileStorage storage, string output, FilesDownloadModel input,
+            CancellationToken token = default)
+        {
+            using (var stream = await storage.DownloadAsync(input, token))
+            {
+                using (var writer = File.Open(output, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                {
+                    writer.SetLength(0);
+                    writer.Seek(0, SeekOrigin.Begin);
+                    await stream.CopyToAsync(writer, 4096, token);
+                }
             }
         }
     }
