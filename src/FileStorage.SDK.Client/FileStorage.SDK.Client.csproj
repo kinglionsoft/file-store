@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <Version>1.0.2.0</Version>
+    <Version>1.0.3.0</Version>
     <LangVersion>7.1</LangVersion>
     <PackageProjectUrl>https://github.com/kinglionsoft/file-store</PackageProjectUrl>
     <Authors>King9Soft</Authors>
-    <Description>文件存储SDK，引用Microsoft.Extensions.Configuration的2.1.1版本，可在2.1框架下使用</Description>
+    <Description>文件存储SDK</Description>
+    <PackageReleaseNotes>增加打包下载</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
