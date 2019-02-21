@@ -313,3 +313,39 @@ tracker_server=192.168.0.237:22122
 # 删除
 /usr/bin/fdfs_delete_file /etc/fdfs/client.conf group1/M00/00/00/oYYBAFvZVs-AWTIMAAAABFqC_Qg122.txt
 ```
+
+## 扩容
+
+### 删除组
+
+``` bash
+# on tracker
+fdfs_monitor /etc/fdfs/client.conf delete group1 100001
+fdfs_monitor /etc/fdfs/client.conf delete group1 100002
+
+# on storage
+rm -rf /fastdfs/storage/data
+```
+
+### 组内扩硬盘
+
+```
+/usr/bin/fdfs_storaged stop
+# 查看新加的盘
+fdisk -l
+
+parted
+
+p
+
+resizepart 2
+
+100%
+
+q
+
+resize2fs /dev/sda2
+
+#
+
+```
