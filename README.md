@@ -10,7 +10,6 @@ Service Fabric + FastDFS + AspNetCore 搭建分布式文件系统和存储服务
 
 ## 使用
 
-* API地址：https://store.yitu666.com
 
 ### 上传
 * 接口地址：POST {服务器地址}/file/upload
@@ -50,8 +49,8 @@ Service Fabric + FastDFS + AspNetCore 搭建分布式文件系统和存储服务
 {
 	"FileName": "test.zip",
 	"Files": {
-		"1.png": "http://store.yitu666.com:8880/group1/M00/00/68/oYYBAFxmcp6AQsyIAAAUa4KwmUU490.png",
-		"img/2.png": "http://store.yitu666.com:8880/group1/M00/00/68/oYYBAFxmcp6AQsyIAAAUa4KwmUU490.png"
+		"1.png": "http://file.domain.com/group1/M00/00/68/oYYBAFxmcp6AQsyIAAAUa4KwmUU490.png",
+		"img/2.png": "http://file.domain.com/group1/M00/00/68/oYYBAFxmcp6AQsyIAAAUa4KwmUU490.png"
 	}
 }
 ```
@@ -155,7 +154,7 @@ public class HomeController{
 // 全局初始化
 FileStorageFactory.Initialize(new FileStorageOption
 {
-    FileServer = "http://localhost:5000"
+    FileServer = "file.domain.com"
 });
 
 // 使用
