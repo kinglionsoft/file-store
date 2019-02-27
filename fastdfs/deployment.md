@@ -276,6 +276,11 @@ http {
             proxy_cache_key $uri$is_args$args;
             proxy_pass http://fdfs_group1;
             expires 30d;
+			
+			if ($request_uri ~* ^(\?filename=([^&]+))$) {
+               add_header Content-Disposition 'attachment;filename="$arg__filename"';
+            }
+
         }
 		
 

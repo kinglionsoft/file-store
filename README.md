@@ -40,6 +40,12 @@ Service Fabric + FastDFS + AspNetCore 搭建分布式文件系统和存储服务
 }
 ```
 
+### 单文件下载
+
+* http://xxx.domain.com/group1/M00/00/01/ooYBAFx2JGKAJdtkAAAw_JvwOOU227.png?filename=2222.png
+* 若url中带有文件名（filename）参数，下载是会重命名。
+* **filename**必须是最后一个参数
+
 ### 打包下载
 * 接口地址：POST {服务器地址}/file/download
 * Content-Type: application/json
