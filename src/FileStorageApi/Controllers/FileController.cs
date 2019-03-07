@@ -100,7 +100,22 @@ namespace FileStorageApi.Controllers
 
             var zipFile = await _fileStorageService.DownloadAsync(input.Files);
 
-            return File(System.IO.File.OpenRead(zipFile),"application/zip", input.FileName);
+            return File(System.IO.File.OpenRead(zipFile), "application/zip", input.FileName);
+        }
+
+        /// <summary>
+        /// 批量打包下载
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> Download(string fileName, [FromQuery]Dictionary<string, string> files)
+        {
+            return await Download(new FilesDownloadModel
+            {
+                FileName = fileName,
+                Files = files
+            });
         }
     }
 }
