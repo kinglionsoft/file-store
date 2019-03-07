@@ -66,7 +66,10 @@ Service Fabric + FastDFS + AspNetCore 搭建分布式文件系统和存储服务
 
 #### GET
 * 接口地址：GET {服务器地址}/file/download?filename=test.zip&files[<文件名>]=<url编码后的地址>
-* 示例：/file/download?filename=test.zip&files[1.png]=http%3A%2F%2Fstore.yitu666.com%3A8880%2Fgroup1%2FM00%2F00%2F01%2FooYBAFx2JGKAJdtkAAAw_JvwOOU227.png
+* 示例：
+```
+/file/download?filename=test.zip&files[1.png]=http%3A%2F%2Fstore.yitu666.com%3A8880%2Fgroup1%2FM00%2F00%2F01%2FooYBAFx2JGKAJdtkAAAw_JvwOOU227.png
+```
 * 返回值: test.zip 文件流
 
 ## 示例
