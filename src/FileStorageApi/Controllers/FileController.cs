@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.RegularExpressions;
 
 namespace FileStorageApi.Controllers
 {
@@ -95,6 +96,12 @@ namespace FileStorageApi.Controllers
         {
             if (string.IsNullOrEmpty(input.FileName) || !(input.Files?.Count > 0))
             {
+                if (Regex.IsMatch(input.FileName, "[\\\\/:*?\"<>|&]")
+                || input.Files.Any(x => Regex.IsMatch(x.Key, "[\\:*?\"<>|]")))
+                {
+                    return BadRequest(ApiResult.Failed("文件名含有非法字符"));
+                }
+
                 return BadRequest(ApiResult.Failed("参数无效"));
             }
 
