@@ -1,16 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FileStorage.Application;
 using FileStorage.Core;
 using FileStorageApi.Controllers.Dto;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
-using System.Text.RegularExpressions;
 
 namespace FileStorageApi.Controllers
 {
@@ -96,14 +93,20 @@ namespace FileStorageApi.Controllers
         {
             if (string.IsNullOrEmpty(input.FileName) || !(input.Files?.Count > 0))
             {
-                if (Regex.IsMatch(input.FileName, "[\\\\/:*?\"<>|&]")
-                || input.Files.Any(x => Regex.IsMatch(x.Key, "[\\:*?\"<>|]")))
-                {
-                    return BadRequest(ApiResult.Failed("文件名含有非法字符"));
-                }
-
                 return BadRequest(ApiResult.Failed("参数无效"));
             }
+
+            if (Regex.IsMatch(input.FileName, "[\\\\/:*?\"<>|&]"))
+            {
+                return BadRequest(ApiResult.Failed("filename含有非法字符"));
+            }
+
+            if (input.Files.Any(x => string.IsNullOrWhiteSpace(x.Value) 
+                                     || Regex.IsMatch(x.Key, "[\\:*?\"<>|]")))
+            {
+                return BadRequest(ApiResult.Failed("files中的文件名含有非法字符"));
+            }
+
 
             var zipFile = await _fileStorageService.DownloadAsync(input.Files);
 
@@ -113,7 +116,6 @@ namespace FileStorageApi.Controllers
         /// <summary>
         /// 批量打包下载
         /// </summary>
-        /// <param name="input"></param>
         /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> Download(string fileName, [FromQuery]Dictionary<string, string> files)
