@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using FileStorage.Application;
 using FileStorage.Core;
+using FileStorageApi.Compress;
 using FileStorageApi.Controllers.Dto;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -66,8 +67,13 @@ namespace FileStorageApi.Controllers
             return Json(new ApiResult<List<string>>(tasks.Select(x => x.Result).ToList()));
         }
 
+        /// <summary>
+        /// 上传压缩包
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> UploadCompressWrapper([FromForm] FileUploadInput input)
+        public async Task<IActionResult> UploadPackage([FromForm] FileUploadInput input)
         {
             if (Request.Form.Files == null || Request.Form.Files.Count == 0)
             {
@@ -86,23 +92,47 @@ namespace FileStorageApi.Controllers
                 return BadRequest(ApiResult.Failed("请手动设置文件扩展名"));
             }
 
-            var temp1 = new CompressFileUploadOutput
-            {
-                FileName = "测试压缩包临时文件1.pdf",
-                FileMd5 = "d766fb30e5484f679f7fc94d2eceaf51",
-                FileUrl = "http://store.yitu666.com:8880/group1/M00/00/5C/oYYBAFzHrdGAOT1-AEP5I0vi7W0983.pdf",
-                FolderPath = null
-            };
-            var temp2 = new CompressFileUploadOutput
-            {
-                FileName = "测试压缩包临时文件2.docx",
-                FileMd5 = "3c603ad8a4a8f57105d67f97fe227baa",
-                FileUrl = "http://store.yitu666.com:8880/group1/M00/00/5F/ooYBAFzOlwqAfFQdAAcMrX9e-bg94.docx",
-                FolderPath = null
-            };
+            return await DecompressionUpload(input);
+        }
 
-            var lst = new List<CompressFileUploadOutput> {temp1, temp2};
-            return Json(new ApiResult<List<CompressFileUploadOutput>>(lst));
+        /// <summary>
+        /// 解压文件并上传
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        private async Task<IActionResult> DecompressionUpload(FileUploadInput input)
+        {
+            string tempDir = null;
+            try
+            {
+                tempDir = FilePathExtention.CreateTimeRandomDir(Path.GetTempPath());
+
+                var lstFile = await new CompressTool(tempDir).Decompression(Request.Form.Files);
+                var tasks = lstFile
+                    .Select(async file =>
+                    {
+                        var ext = Path.GetExtension(file.FileName);
+                        using (var stream = System.IO.File.OpenRead(file.TempFilePath))
+                        {
+                            var model = new UploadFileModel(stream, ext, input.Group);
+                            file.FileUrl = await _fileStorageService.UploadAsync(model);
+                        }
+                    }).ToArray();
+                await Task.WhenAll(tasks);
+
+                return Json(new ApiResult<List<CompressFileUploadOutput>>(lstFile));
+            }
+            catch(System.FormatException ex)
+            {
+                return Json(new ApiResult<string>(ex.Message));
+            }
+            finally
+            {
+                if (tempDir != null && Directory.Exists(tempDir))
+                {
+                    Directory.Delete(tempDir, true);
+                }
+            }
         }
 
         [HttpPost]
