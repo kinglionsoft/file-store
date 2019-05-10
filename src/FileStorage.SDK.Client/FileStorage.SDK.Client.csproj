@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <Version>1.0.3.0</Version>
+    <Version>1.0.4.0</Version>
     <LangVersion>7.1</LangVersion>
     <PackageProjectUrl>https://github.com/kinglionsoft/file-store</PackageProjectUrl>
     <Authors>King9Soft</Authors>
@@ -17,9 +17,5 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FileStorage.Core\FileStorage.Core.csproj" />
   </ItemGroup>
 </Project>
