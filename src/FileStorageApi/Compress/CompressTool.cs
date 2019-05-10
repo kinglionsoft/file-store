@@ -117,7 +117,7 @@ namespace FileStorageApi.Compress
             return lstFileInfo;
         }
 
-        private bool IsPackage(string fileExt)
+        private static bool IsPackage(string fileExt)
         {
             if (fileExt.StartsWith(".zip") || fileExt.StartsWith(".rar") || fileExt.StartsWith(".7z"))
             {
@@ -132,7 +132,7 @@ namespace FileStorageApi.Compress
             return false;
         }
 
-        private string CalcMd5(string filePath)
+        private static string CalcMd5(string filePath)
         {
             using (var stream = File.OpenRead(filePath))
             {
@@ -144,7 +144,7 @@ namespace FileStorageApi.Compress
             }
         }
 
-        private string CombinePath(string parentPath, string childPath)
+        private static string CombinePath(string parentPath, string childPath)
         {
             if (string.IsNullOrEmpty(parentPath))
             {
@@ -154,8 +154,7 @@ namespace FileStorageApi.Compress
             {
                 return parentPath;
             }
-            var path = Path.Combine(parentPath, childPath);
-            return path;
+            return Path.Combine(parentPath, childPath);
         }
     }
 }
