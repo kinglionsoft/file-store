@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -117,12 +118,14 @@ namespace FileStorageApi.Controllers
                             var model = new UploadFileModel(stream, ext, input.Group);
                             file.FileUrl = await _fileStorageService.UploadAsync(model);
                         }
+                        //上传成功，删除临时文件
+                        System.IO.File.Delete(file.FileName);
                     }).ToArray();
                 await Task.WhenAll(tasks);
 
                 return Json(new ApiResult<List<CompressFileUploadOutput>>(lstFile));
             }
-            catch(System.FormatException ex)
+            catch(FormatException ex)
             {
                 return Json(new ApiResult<string>(ex.Message));
             }
@@ -164,22 +167,36 @@ namespace FileStorageApi.Controllers
             {
                 return BadRequest(ApiResult.Failed("参数无效"));
             }
-
             if (Regex.IsMatch(input.FileName, "[\\\\/:*?\"<>|&]"))
             {
                 return BadRequest(ApiResult.Failed("filename含有非法字符"));
             }
-
             if (input.Files.Any(x => string.IsNullOrWhiteSpace(x.Value) 
-                                     || Regex.IsMatch(x.Key, "[\\:*?\"<>|]")))
+                                     || Regex.IsMatch(x.Key, "[\\:*\"<>|]"))) //?作为嵌套压缩包的识别
             {
                 return BadRequest(ApiResult.Failed("files中的文件名含有非法字符"));
             }
-
+            if (input.Files.Any(x => x.Key.StartsWith('?') || x.Key.EndsWith('?')))
+            {
+                return BadRequest(ApiResult.Failed("files中的文件名首尾不能含有英文字符问号'?'"));
+            }
+            //双斜杠的时候，压缩包会创建一级空目录，自动缩小一级的话，可能导致key相同
+            if (input.Files.Any(x => x.Key.Contains(@"\\") || 
+                                     x.Key.Contains(@"//") || 
+                                     x.Key.Contains(@"\/") || 
+                                     x.Key.Contains(@"/\")))
+            {
+                return BadRequest(ApiResult.Failed("files中的文件名不能有双斜杠"));
+            }
 
             var zipFile = await _fileStorageService.DownloadAsync(input.Files);
+            var fileName = input.FileName;
+            if (!fileName.EndsWith(".zip", StringComparison.InvariantCultureIgnoreCase))
+            {
+                fileName += ".zip"; //只支持zip压缩
+            }
 
-            return File(System.IO.File.OpenRead(zipFile), "application/zip", input.FileName);
+            return File(System.IO.File.OpenRead(zipFile), "application/zip", fileName);
         }
 
         /// <summary>
