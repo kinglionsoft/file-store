@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using FileStorageApi.Controllers.Dto;
 using Microsoft.AspNetCore.Http;
@@ -43,8 +44,11 @@ namespace FileStorageApi.Compress
                 {
                     using (var stream = file.OpenReadStream())
                     {
+                        ReaderOptions options = new ReaderOptions { LeaveStreamOpen = false };
+                        options.ArchiveEncoding.Default = Encoding.GetEncoding(936); //中文必须编码,不是就乱码咯
+
                         var compressFolder = $"{Path.GetFileName(file.FileName)}?";
-                        return ArchiveStreamRead(stream, null, compressFolder);
+                        return ArchiveStreamRead(stream, options, compressFolder);
                     }
                 });
             }).ToArray();
