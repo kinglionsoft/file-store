@@ -12,6 +12,8 @@
         /// </summary>
         public string IdentityServer { get; set; }
 
+        internal const string UploadPackageUrl = "/file/uploadPackage";
+
         internal const string UploadUrl = "/file/upload";
 
         internal const string DeleteUrl = "/file/delete";

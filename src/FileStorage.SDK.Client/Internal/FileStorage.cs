@@ -34,7 +34,24 @@ namespace FileStorage.SDK.Client
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
+
+        public async Task<ApiResult<string[]>> UploadPackageAsync(IEnumerable<string> files,
+            string defaultExtension = null,
+            string groupName = null,
+            CancellationToken token = default)
+        {
+            return await UploadAsync(FileStorageOption.UploadPackageUrl, files, defaultExtension, groupName, token);
+        }
+
         public async Task<ApiResult<string[]>> UploadAsync(IEnumerable<string> files,
+            string defaultExtension = null,
+            string groupName = null,
+            CancellationToken token = default)
+        {
+            return await UploadAsync(FileStorageOption.UploadUrl, files, defaultExtension, groupName, token);
+        }
+
+        private async Task<ApiResult<string[]>> UploadAsync(string uploadUrl, IEnumerable<string> files,
             string defaultExtension = null,
             string groupName = null,
             CancellationToken token = default)
@@ -61,7 +78,7 @@ namespace FileStorage.SDK.Client
                 HttpResponseMessage response = null;
                 try
                 {
-                    response = await _httpClient.PostAsync(FileStorageOption.UploadUrl,
+                    response = await _httpClient.PostAsync(uploadUrl,
                         postContent,
                         token);
 
