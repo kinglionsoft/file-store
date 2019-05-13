@@ -35,12 +35,14 @@ namespace FileStorage.SDK.Client
         }
 
 
-        public async Task<ApiResult<string[]>> UploadPackageAsync(IEnumerable<string> files,
+        public async Task<ApiResult<CompressFileUploadOutput[]>> UploadPackageAsync(IEnumerable<string> files,
             string defaultExtension = null,
             string groupName = null,
             CancellationToken token = default)
         {
-            return await UploadAsync(FileStorageOption.UploadPackageUrl, files, defaultExtension, groupName, token);
+            var responeBody = await UploadAsync(FileStorageOption.UploadPackageUrl, files, defaultExtension, groupName, token);
+            var result = JsonConvert.DeserializeObject<ApiResult<CompressFileUploadOutput[]>>(responeBody);
+            return result;
         }
 
         public async Task<ApiResult<string[]>> UploadAsync(IEnumerable<string> files,
@@ -48,10 +50,12 @@ namespace FileStorage.SDK.Client
             string groupName = null,
             CancellationToken token = default)
         {
-            return await UploadAsync(FileStorageOption.UploadUrl, files, defaultExtension, groupName, token);
+            var responeBody = await UploadAsync(FileStorageOption.UploadUrl, files, defaultExtension, groupName, token);
+            var result = JsonConvert.DeserializeObject<ApiResult<string[]>>(responeBody);
+            return result;
         }
 
-        private async Task<ApiResult<string[]>> UploadAsync(string uploadUrl, IEnumerable<string> files,
+        private async Task<string> UploadAsync(string uploadUrl, IEnumerable<string> files,
             string defaultExtension = null,
             string groupName = null,
             CancellationToken token = default)
@@ -83,8 +87,7 @@ namespace FileStorage.SDK.Client
                         token);
 
                     var body = await response.Content.ReadAsStringAsync();
-                    var result = JsonConvert.DeserializeObject<ApiResult<string[]>>(body);
-                    return result;
+                    return body;
                 }
                 catch (Exception ex)
                 {

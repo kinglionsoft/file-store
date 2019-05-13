@@ -14,7 +14,7 @@ namespace FileStorage.SDK.Client
         /// <param name="defaultExtension">若文件流中无法获取后缀名，则使用默认后缀名</param>
         /// <param name="groupName">文件组</param>
         /// <returns></returns>
-        Task<ApiResult<string[]>> UploadPackageAsync(IEnumerable<string> files,
+        Task<ApiResult<CompressFileUploadOutput[]>> UploadPackageAsync(IEnumerable<string> files,
             string defaultExtension = null,
             string groupName = null,
             CancellationToken token = default);
