@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using FileStorage.Core;
 using FileStorage.SDK.Client;
 using Newtonsoft.Json;
 using Xunit;
@@ -34,6 +32,23 @@ namespace Client.Test
                 Assert.Equal(1, result.Data.Length);
                 var delete = await storage.TryDeleteAsync(result.Data[0]);
                 Assert.True(delete);
+            }
+        }
+
+        [Fact]
+        public async Task UploadPakcageAndDelete()
+        {
+            var storage = FileStorageFactory.Create();
+            foreach (var file in Directory.GetFiles("zip"))
+            {
+                var result = await storage.UploadPackageAsync(file);
+                Assert.True(result.Success);
+                Assert.Equal(2, result.Data.Length); //压缩包内有两个文件
+                foreach (var uploadOutput in result.Data)
+                {
+                    var delete = await storage.TryDeleteAsync(uploadOutput.FileUrl);
+                    Assert.True(delete);
+                }
             }
         }
 

@@ -11,6 +11,11 @@ namespace FileStorage.SDK.Client
             return storage.UploadAsync(new[] { file });
         }
 
+        public static Task<ApiResult<CompressFileUploadOutput[]>> UploadPackageAsync(this IFileStorage storage, string file)
+        {
+            return storage.UploadPackageAsync(new[] { file });
+        }
+
         public static async Task<bool> TryDeleteAsync(this IFileStorage storage, string fileUrl,
             CancellationToken token = default)
         {
