@@ -27,10 +27,6 @@ namespace Client.Test
             var storage = FileStorageFactory.Create();
             foreach (var file in GetFiles())
             {
-                if (file.EndsWith(".zip"))
-                {
-                    continue;
-                }
                 var result = await storage.UploadAsync(file);
                 Assert.True(result.Success);
                 Assert.Equal(1, result.Data.Length);
@@ -40,15 +36,11 @@ namespace Client.Test
         }
 
         [Fact]
-        public async Task UploadPakcage()
+        public async Task UploadPakcageAndDelete()
         {
             var storage = FileStorageFactory.Create();
-            foreach (var file in GetFiles())
+            foreach (var file in Directory.GetFiles("zip"))
             {
-                if (!file.EndsWith(".zip"))
-                {
-                    continue;
-                }
                 var result = await storage.UploadPackageAsync(file);
                 Assert.True(result.Success);
                 Assert.Equal(2, result.Data.Length); //压缩包内有两个文件
