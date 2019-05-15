@@ -167,26 +167,25 @@ namespace FileStorageApi.Controllers
             {
                 return BadRequest(ApiResult.Failed("参数无效"));
             }
-            if (Regex.IsMatch(input.FileName, "[\\\\/:*?\"<>|&]"))
+            if (Regex.IsMatch(input.FileName, @"[\\\/:*?""<>|&]"))
             {
                 return BadRequest(ApiResult.Failed("filename含有非法字符"));
             }
+            //英文 ? 作为嵌套压缩包的识别，可以有
+            //为防止 / \ 路径分隔符在key中不同，但实际为同一个文件的情况，统一使用 / 作为路径分隔符
             if (input.Files.Any(x => string.IsNullOrWhiteSpace(x.Value) 
-                                     || Regex.IsMatch(x.Key, "[\\:*\"<>|]"))) //?作为嵌套压缩包的识别
+                                     || Regex.IsMatch(x.Key, @"[\\:*""<>|]"))) 
             {
                 return BadRequest(ApiResult.Failed("files中的文件名含有非法字符"));
             }
-            if (input.Files.Any(x => x.Key.StartsWith('?') || x.Key.EndsWith('?')))
+            if (input.Files.Any(x => Regex.IsMatch(x.Key, @"\?[^\/-\/]")   //英文 ? 压缩包作为路径层级，后面必须跟 /
+                                     || Regex.IsMatch(x.Key, @"\/[ \/]")   //斜杠 / 后面不能有空格或者 /
+                                     || Regex.IsMatch(x.Key, @" [\/\?]")   //斜杠 / 和 ? 前面不能有空格
+                                     || x.Key.StartsWith('?') || x.Key.EndsWith('?')
+                                     || x.Key.StartsWith('/') || x.Key.EndsWith('/') 
+                                     || x.Key.StartsWith(' ') || x.Key.EndsWith(' ')))
             {
-                return BadRequest(ApiResult.Failed("files中的文件名首尾不能含有英文字符问号'?'"));
-            }
-            //双斜杠的时候，压缩包会创建一级空目录，自动缩小一级的话，可能导致key相同
-            if (input.Files.Any(x => x.Key.Contains(@"\\") || 
-                                     x.Key.Contains(@"//") || 
-                                     x.Key.Contains(@"\/") || 
-                                     x.Key.Contains(@"/\")))
-            {
-                return BadRequest(ApiResult.Failed("files中的文件名不能有双斜杠"));
+                return BadRequest(ApiResult.Failed("files中的文件名含有非法路径"));
             }
 
             var zipFile = await _fileStorageService.DownloadAsync(input.Files);
