@@ -131,7 +131,8 @@ namespace FileStorage.Application
 
         private static string GetValidEntryKey(MyCompressFile compressFile, string entryKey)
         {
-            if (entryKey.EndsWith(ZipExt, StringComparison.InvariantCultureIgnoreCase))
+            if (entryKey.EndsWith(ZipExt, StringComparison.InvariantCultureIgnoreCase) 
+                && entryKey.Length > ZipExt.Length) //防止 entryKey 就是.zip的情况
             {
                 return entryKey;
             }
