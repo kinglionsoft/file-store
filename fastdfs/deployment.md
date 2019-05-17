@@ -143,6 +143,9 @@ group_name=group1                       # 第一组storage的组名
 url_have_group_name=true
 store_path0=/fastdfs/storage
 group_count=1
+use_storage_id = true
+storage_ids_filename = storage_ids.conf # 同tracker
+
 [group1]
 group_name=group1
 storage_server_port=23000

@@ -61,7 +61,7 @@ namespace FileStorageApi
                             .SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
                             .AddJsonFile(Path.Combine("config", "appsettings.json"), false, true)
                             .AddJsonFile(Path.Combine("config", $"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json"), true, true)
-                            .AddJsonFile(Path.Combine("configMap", $"appsettings.k8s.json"), true, true)
+                            .AddJsonFile(Path.Combine("configMap", "appsettings.k8s.json"), true, true)
                             .AddEnvironmentVariables();
                     })
                     .ConfigureLogging((hostingContext, logging) =>
@@ -74,7 +74,7 @@ namespace FileStorageApi
                         }
                         else
                         {
-                            logging.SetMinimumLevel(LogLevel.Error);
+                            logging.SetMinimumLevel(LogLevel.Information);
                         }
                     })
                     .UseIISIntegration()
