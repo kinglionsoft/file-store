@@ -179,11 +179,10 @@ namespace FileStorageApi.Controllers
                 return BadRequest(ApiResult.Failed("files中的文件名含有非法字符"));
             }
             if (input.Files.Any(x => Regex.IsMatch(x.Key, @"\?[^/-/]")   //英文 ? 压缩包作为路径层级，后面必须跟 /
-                                     || Regex.IsMatch(x.Key, @"/[ /]")   //斜杠 / 后面不能有空格或者 /
-                                     || Regex.IsMatch(x.Key, @" [/?]")   //斜杠 / 和 ? 前面不能有空格
-                                     || x.Key.StartsWith('?') || x.Key.EndsWith('?')  //首尾不能有 ? / 空格
-                                     || x.Key.StartsWith('/') || x.Key.EndsWith('/') 
-                                     || x.Key.StartsWith(' ') || x.Key.EndsWith(' ')))
+                                     || Regex.IsMatch(x.Key, @" [?/]")   //空格   后面 不能有 ? /
+                                     || Regex.IsMatch(x.Key, @"/[?/ ]")  //斜杠 / 后面 不能有 ? / 空格
+                                     || Regex.IsMatch(x.Key, @"^[?/ ]")  //首尾        不能有 ? / 空格
+                                     || Regex.IsMatch(x.Key, @"[?/ ]$")))
             {
                 return BadRequest(ApiResult.Failed("files中的文件名含有非法路径"));
             }
